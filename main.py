@@ -5,7 +5,7 @@ import setuptools
 from time import sleep
 
 from selenium import webdriver
-from selenium.common import TimeoutException
+from selenium.common import TimeoutException, NoSuchElementException
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.expected_conditions import none_of
@@ -51,7 +51,7 @@ def scrape_carpages_ca(driver):
             print("Done.", flush=True)
 
             bypass_captcha(driver)
-            navigate_page(driver)
+            navigate_category(driver)
             sleep(random.uniform(5,10))
 
         except TimeoutException:
@@ -59,14 +59,54 @@ def scrape_carpages_ca(driver):
             print("Page load timed out! Forcing stop to continue scraping.")
             driver.execute_script("window.stop();")
             bypass_captcha(driver)
-            navigate_page(driver)  # Try to scrape whatever loaded
+            navigate_category(driver)  # Try to scrape whatever loaded
 
         except Exception as e:
             print(f"Skip {category_url} because of error: {e}")
             continue  # Go to the next category
 
-def navigate_page(driver):
+def navigate_category(driver):
     print(f"Navigating in {driver.title}")
+
+    while True:
+        try:
+            page_car_listing_container = (driver.find_element(By.CSS_SELECTOR,
+                                        "div[class*='tw:laptop:col-span-8']"))
+            car_listings = page_car_listing_container.find_elements(By.CSS_SELECTOR,
+                            "div[class='tw:flex tw:gap-6 tw:items-start tw:p-6']")
+            for car_listing in car_listings:
+                listing_header = car_listing.find_element(By.TAG_NAME, "h4").text
+                year = listing_header.split(" ")[0]
+                make = listing_header.split(" ")[1]
+                model = listing_header.split(" ")[2]
+                price = car_listing.find_element(By.CSS_SELECTOR,
+                        "span[class*='tw:font-bold tw:text-xl']").text
+
+
+                mileage_header_box = car_listing.find_element(By.CSS_SELECTOR,
+                            "div[class*='tw:col-span-full tw:mobile-lg:col-span-6 tw:laptop:col-span-4']")
+                mileage_box = mileage_header_box.find_element(By.CSS_SELECTOR,
+                              "div[class*='tw:text-gray-500']")
+                car_mileage = mileage_box.text
+                if car_mileage != "CALL":
+                    car_mileage = ""
+                    mileage_number_list = mileage_box.find_elements(By.CLASS_NAME, "number")
+                    for mileage_number in mileage_number_list:
+                        car_mileage += mileage_number.text
+                    car_mileage = car_mileage.replace(",", "")
+                    car_mileage = int(car_mileage)
+                else:
+                    car_mileage = 0
+
+
+
+                color = car_listing.find_element(By.CSS_SELECTOR,
+                        "span[class*='tw:text-sm tw:font-bold']").text
+                print(year, make, model, price, car_mileage, color)
+        except NoSuchElementException:
+            print("List not found")
+        break
+
     driver.implicitly_wait(10)
 
 
@@ -139,6 +179,33 @@ def bypass_captcha(driver):
         # Wait and check again
         print(f" >> Time waiting: ({int(elapsed)}s)")
         time.sleep(2)
+
+def extract_data_from_listing(car_listing):
+    listing_header = car_listing.find_element(By.TAG_NAME, "h4").text
+    year = listing_header.split(" ")[0]
+    make = listing_header.split(" ")[1]
+    model = listing_header.split(" ")[2]
+    price = car_listing.find_element(By.CSS_SELECTOR,
+                                     "span[class*='tw:font-bold tw:text-xl']").text
+
+    mileage_header_box = car_listing.find_element(By.CSS_SELECTOR,
+                                                  "div[class*='tw:col-span-full tw:mobile-lg:col-span-6 tw:laptop:col-span-4']")
+    mileage_box = mileage_header_box.find_element(By.CSS_SELECTOR,
+                                                  "div[class*='tw:text-gray-500']")
+    car_mileage = mileage_box.text
+    if car_mileage != "CALL":
+        car_mileage = ""
+        mileage_number_list = mileage_box.find_elements(By.CLASS_NAME, "number")
+        for mileage_number in mileage_number_list:
+            car_mileage += mileage_number.text
+        car_mileage = car_mileage.replace(",", "")
+        car_mileage = int(car_mileage)
+    else:
+        car_mileage = 0
+
+    color = car_listing.find_element(By.CSS_SELECTOR,
+                                     "span[class*='tw:text-sm tw:font-bold']").text
+    print(year, make, model, price, car_mileage, color)
 
 if __name__ == "__main__":
     main()
