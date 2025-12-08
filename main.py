@@ -21,15 +21,17 @@ def main():
 
     # Throw error if loading takes longer than 30
     driver.set_page_load_timeout(15)
+    driver.implicitly_wait(5);
     try:
         scrape_carpages_ca(driver)
+
     finally:
         driver.quit()
 
 def scrape_carpages_ca(driver):
     # Open webpage and wait to load
     driver.get("https://www.carpages.ca")
-    driver.implicitly_wait(5)
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
 
     # Handle cookie requests before scraping
     cookie_handler(driver)
@@ -45,9 +47,11 @@ def scrape_carpages_ca(driver):
     # Access each category webpage
     for category_url in category_urls:
         try:
+            navigate_page.count = 0
             # Explicitly print before the blocking call
             print(" >> Requesting page...", end=" ", flush=True)
             driver.get(category_url)
+            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
             print("Done.", flush=True)
 
             bypass_captcha(driver)
@@ -70,45 +74,84 @@ def navigate_category(driver):
 
     while True:
         try:
-            page_car_listing_container = (driver.find_element(By.CSS_SELECTOR,
-                                        "div[class*='tw:laptop:col-span-8']"))
-            car_listings = page_car_listing_container.find_elements(By.CSS_SELECTOR,
-                            "div[class='tw:flex tw:gap-6 tw:items-start tw:p-6']")
+            header_text = driver.find_element(By.TAG_NAME, "h1").text
+            # Extract body_type which is the same for all cars in one category
+            if "New and Used" in header_text:
+                body_type = header_text.replace("New and Used ", "").replace(" for Sale", "")
+            else:
+                body_type = header_text
+            # Set body_type of all entries in one category to be the same
+            # Only changes when moving to new category
+            if body_type == "Cars":
+                body_type = "hybrid"
+            elif "Hatchbacks" in body_type:
+                body_type = "Hatchback"
+            elif "SUV" in body_type:
+                body_type = "SUV"
+            elif "Minivan" in body_type:
+                body_type = "Minivan"
+            else:
+                body_type = body_type[:-1]
+            navigate_page(driver,body_type)
+
+            # After navigating page try to move to next page in the same category
+            next_link = driver.find_elements(By.LINK_TEXT,"→")
+            proceed_to_next = False
+
+            if next_link:
+                next_btn = next_link[0]
+
+                # Check if button is disabled or if there is no link
+                btn_class = next_btn.get_attribute("class") or ""
+
+                # If the button is not disabled go ahead and go to next page
+                if "disabled" not in btn_class and next_btn.is_enabled():
+                    proceed_to_next = True
+
+            if proceed_to_next:
+                # Track current page count of cars (1-50 or 51-100)
+                curr_page_numbers = driver.find_element(By.CSS_SELECTOR,
+                                    "span[class*='tw:font-bold']").text
+
+                next_link[0].click()
+
+                # Wait for the loading to new page and for old page to go stale
+                try:
+                    WebDriverWait(driver, 10).until(
+                        lambda d: d.find_element(By.CSS_SELECTOR, "span[class*='tw:font-bold']").text\
+                                  != curr_page_numbers
+                    )
+                    print(" >> Page loaded successfully.")
+                except Exception as e:
+                    print(" >> Timed out waiting for new page to load.")
+
+            else:
+                print("No link found. Must be last page of category.")
+                break
+
+        except Exception as e:
+            print(f"Skip page because of error: {e}")
+            break
+
+def navigate_page(driver, body_type):
+    if not hasattr(navigate_page, "count"):
+        navigate_page.count = 0
+    navigate_page.count += 1
+    print(f"Navigating page {navigate_page.count} in {driver.title}")
+    try:
+        # Wait for container to appear to access
+        page_car_listing_container = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, "div[class*='tw:laptop:col-span-8']")))
+        # Get list of all car_listings to scrape data
+        car_listings = page_car_listing_container.find_elements(By.CSS_SELECTOR,
+                "div[class*='tw:flex'][class*='tw:p-6']")
+        if not car_listings:
+            print("No car listing found.")
+        else:
             for car_listing in car_listings:
-                listing_header = car_listing.find_element(By.TAG_NAME, "h4").text
-                year = listing_header.split(" ")[0]
-                make = listing_header.split(" ")[1]
-                model = listing_header.split(" ")[2]
-                price = car_listing.find_element(By.CSS_SELECTOR,
-                        "span[class*='tw:font-bold tw:text-xl']").text
-
-
-                mileage_header_box = car_listing.find_element(By.CSS_SELECTOR,
-                            "div[class*='tw:col-span-full tw:mobile-lg:col-span-6 tw:laptop:col-span-4']")
-                mileage_box = mileage_header_box.find_element(By.CSS_SELECTOR,
-                              "div[class*='tw:text-gray-500']")
-                car_mileage = mileage_box.text
-                if car_mileage != "CALL":
-                    car_mileage = ""
-                    mileage_number_list = mileage_box.find_elements(By.CLASS_NAME, "number")
-                    for mileage_number in mileage_number_list:
-                        car_mileage += mileage_number.text
-                    car_mileage = car_mileage.replace(",", "")
-                    car_mileage = int(car_mileage)
-                else:
-                    car_mileage = 0
-
-
-
-                color = car_listing.find_element(By.CSS_SELECTOR,
-                        "span[class*='tw:text-sm tw:font-bold']").text
-                print(year, make, model, price, car_mileage, color)
-        except NoSuchElementException:
-            print("List not found")
-        break
-
-    driver.implicitly_wait(10)
-
+                extract_data_from_listing(car_listing, body_type)
+    except (NoSuchElementException, TimeoutException):
+        print("(Page content timed out or empty)")
 
 def cookie_handler(driver):
     try:
@@ -139,14 +182,15 @@ def no_location_options():
     # Add preferences to options
     chrome_options.add_experimental_option("prefs", prefs)
     # Change so page does not wait for ads/pictures
-    chrome_options.page_load_strategy = 'eager'
+    chrome_options.page_load_strategy = 'none'
     # Return options
     return chrome_options
 
 def bypass_captcha(driver):
 
     # Titles to check for CAPTCHA or waiting pages
-    suspicious_titles = ["Just a moment", "Security Check", "Access denied", "Attention Required"]
+    suspicious_titles = ["Just a moment", "Security Check", "Access denied", "Attention Required",
+                         "Checking your browser", "reCAPTCHA", "Cloudflare"]
     accurate_titles = ["New and Used", "Carpages.ca"]
 
     max_wait = 20  # Wait time to ensure that manual captcha entry is required
@@ -180,32 +224,38 @@ def bypass_captcha(driver):
         print(f" >> Time waiting: ({int(elapsed)}s)")
         time.sleep(2)
 
-def extract_data_from_listing(car_listing):
+def extract_data_from_listing(car_listing, body_type):
+    # Extract year, make, model, link and price
     listing_header = car_listing.find_element(By.TAG_NAME, "h4").text
     year = listing_header.split(" ")[0]
     make = listing_header.split(" ")[1]
     model = listing_header.split(" ")[2]
+    href_link = car_listing.find_element(By.TAG_NAME, "a").get_attribute("href")
     price = car_listing.find_element(By.CSS_SELECTOR,
                                      "span[class*='tw:font-bold tw:text-xl']").text
 
+    # Extract mileage, check if mileage exists
     mileage_header_box = car_listing.find_element(By.CSS_SELECTOR,
-                                                  "div[class*='tw:col-span-full tw:mobile-lg:col-span-6 tw:laptop:col-span-4']")
+                        "div[class*='tw:col-span-full tw:mobile-lg:col-span-6 tw:laptop:col-span-4']")
     mileage_box = mileage_header_box.find_element(By.CSS_SELECTOR,
                                                   "div[class*='tw:text-gray-500']")
-    car_mileage = mileage_box.text
-    if car_mileage != "CALL":
-        car_mileage = ""
+    raw_mileage = mileage_box.text
+    car_mileage = 0
+
+    if "CALL" not in raw_mileage and raw_mileage.strip() != "":
+        # Extract only digits
         mileage_number_list = mileage_box.find_elements(By.CLASS_NAME, "number")
-        for mileage_number in mileage_number_list:
-            car_mileage += mileage_number.text
-        car_mileage = car_mileage.replace(",", "")
-        car_mileage = int(car_mileage)
-    else:
-        car_mileage = 0
+        temp_mileage = ""
+        for num in mileage_number_list:
+            temp_mileage += num.text
+
+        clean_mileage = temp_mileage.replace(",", "").strip()
+        if clean_mileage.isdigit():
+            car_mileage = int(clean_mileage)
 
     color = car_listing.find_element(By.CSS_SELECTOR,
                                      "span[class*='tw:text-sm tw:font-bold']").text
-    print(year, make, model, price, car_mileage, color)
+    print(year, make, model, price, car_mileage, color, href_link, body_type)
 
 if __name__ == "__main__":
     main()
