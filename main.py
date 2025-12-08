@@ -1,4 +1,5 @@
 import csv
+import os
 import random
 import time
 from collections import defaultdict
@@ -16,29 +17,41 @@ from selenium.webdriver.chrome.options import Options
 
 import undetected_chromedriver as uc
 
+def create_driver():
+    """Create and configure a new Chrome driver instance."""
+    driver = uc.Chrome(options=no_location_options(), version_main=142)
+    driver.set_page_load_timeout(15)
+    driver.implicitly_wait(5)
+    return driver
+
 def main():
     all_rows = []
     category_rows = defaultdict(list)
 
-    # Access Chrome webdriver with selected preferences to block requests
-    driver = uc.Chrome(options=no_location_options(), version_main=142)
+    # Get project directory and create data folder at same hierarchy level
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    project_parent = os.path.dirname(current_dir)  # Go up one level to parent directory
+    data_dir = os.path.join(project_parent, "data")
+    if not os.path.exists(data_dir):
+        os.makedirs(data_dir)
 
-    # Throw error if loading takes longer than 30
-    driver.set_page_load_timeout(15)
-    driver.implicitly_wait(5);
+    # Create initial driver
+    driver = create_driver()
     try:
-        scrape_carpages_ca(driver, all_rows, category_rows)
+        driver = scrape_carpages_ca(driver, all_rows, category_rows, data_dir)
     finally:
-        driver.quit()
+        if driver:
+            driver.quit()
 
     if all_rows:
-        write_rows_to_csv(all_rows, filepath="all_listings.csv")
-        write_category_csvs(category_rows)
+        main_cvs_path = os.path.join(data_dir, "all_listings.csv")
+        write_rows_to_csv(all_rows, filepath=main_cvs_path)
+        write_category_csvs(category_rows, base_dir=data_dir)
         print(f"Saved {len(all_rows)} listings to all_listings.csv and {len(category_rows)} category files.")
     else:
         print("No listings scraped; CSVs not written.")
 
-def scrape_carpages_ca(driver, all_rows, category_rows):
+def scrape_carpages_ca(driver, all_rows, category_rows, data_dir):
     # Open webpage and wait to load
     driver.get("https://www.carpages.ca")
     WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
@@ -56,15 +69,32 @@ def scrape_carpages_ca(driver, all_rows, category_rows):
 
     visited_urls = set()
 
-    # Access each category webpage
-    for category_url in category_urls:
+    # Access each category webpage with intercategory restart
+    for idx, category_url in enumerate(category_urls):
         if category_url in visited_urls:
             print(f"Skipping already visited category: {category_url}")
             continue
+        
+        # Restart browser between categories (except first one)
+        if idx > 0:
+            print(f"\n >> Restarting browser between categories (cache reset)...")
+            driver.quit()
+            sleep(2)  # Brief pause before restart
+            driver = create_driver()
+            
+            # Re-initialize: go to homepage and handle cookies
+            driver.get("https://www.carpages.ca")
+            try:
+                WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+            except TimeoutException:
+                pass
+            cookie_handler(driver)
+            print(" >> Browser restarted and ready.")
+        
         try:
             navigate_page.count = 0
             # Explicitly print before the blocking call
-            print(" >> Requesting page...", end=" ", flush=True)
+            print(f"\n >> Requesting category {idx + 1}/{len(category_urls)}: {category_url}...", end=" ", flush=True)
             driver.get(category_url)
             # Reduced timeout - body should load quickly
             try:
@@ -74,7 +104,7 @@ def scrape_carpages_ca(driver, all_rows, category_rows):
             print("Done.", flush=True)
 
             bypass_captcha(driver)
-            navigate_category(driver, all_rows, category_rows)
+            driver = navigate_category(driver, all_rows, category_rows, category_url, data_dir)
             sleep(random.uniform(2,4))  # Reduced sleep time between categories
             visited_urls.add(category_url)
 
@@ -83,17 +113,22 @@ def scrape_carpages_ca(driver, all_rows, category_rows):
             print("Page load timed out! Forcing stop to continue scraping.")
             driver.execute_script("window.stop();")
             bypass_captcha(driver)
-            navigate_category(driver, all_rows, category_rows)  # Try to scrape whatever loaded
+            driver = navigate_category(driver, all_rows, category_rows, category_url, data_dir)  # Try to scrape whatever loaded
             visited_urls.add(category_url)
 
         except Exception as e:
             print(f"Skip {category_url} because of error: {e}")
             continue  # Go to the next category
+    
+    return driver  # Return driver so main can quit it
 
-def navigate_category(driver, all_rows, category_rows):
+def navigate_category(driver, all_rows, category_rows, category_url, data_dir):
     print(f"Navigating in {driver.title}")
     # Reset page counter for each new category
     navigate_page.count = 0
+    
+    # Intracategory restart settings (restart every N pages)
+    INTRACATEGORY_RESTART_INTERVAL = 50  # Restart browser every 50 pages
     
     # Wait for page to be fully loaded after any redirects/captcha
     bypass_captcha(driver)
@@ -125,18 +160,42 @@ def navigate_category(driver, all_rows, category_rows):
             body_type = body_type[:-1]
     except Exception as e:
         print(f" >> Error extracting body_type: {e}")
-        return  # Can't proceed without body_type
+        return driver  # Can't proceed without body_type
     
     # Scrape the first page - wait for it to be ready
     last_container = navigate_page(driver, body_type, all_rows, category_rows)
     if last_container is None:
         print(" >> Failed to load first page, skipping category.")
-        return
+        return driver
     
     last_url = driver.current_url
 
     while True:
         try:
+            # Intracategory restart: restart browser every N pages to reset cache
+            if navigate_page.count > 0 and navigate_page.count % INTRACATEGORY_RESTART_INTERVAL == 0:
+                current_page_url = driver.current_url
+                print(f"\n >> Intracategory restart at page {navigate_page.count} (cache reset)...")
+                driver.quit()
+                sleep(2)  # Brief pause before restart
+                driver = create_driver()
+                
+                # Restore to the same page URL
+                driver.get(current_page_url)
+                try:
+                    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+                except TimeoutException:
+                    pass
+                bypass_captcha(driver)
+                cookie_handler(driver)
+                print(" >> Browser restarted, continuing from same page.")
+                
+                # Re-acquire the container after restart
+                try:
+                    last_container = driver.find_element(By.CSS_SELECTOR, "div[class*='tw:laptop:col-span-8']")
+                except Exception:
+                    last_container = None
+            
             # Quick captcha check (non-blocking if page is already loaded)
             try:
                 bypass_captcha(driver)
@@ -248,13 +307,15 @@ def navigate_category(driver, all_rows, category_rows):
                 rows_for_category = category_rows.get(body_type, [])
                 if rows_for_category:
                     safe_name = body_type.lower().replace(" ", "_")
-                    write_rows_to_csv(rows_for_category, filepath=f"car_listings_{safe_name}.csv")
-                    print(f"Saved {len(rows_for_category)} listings to car_listings_{safe_name}.csv")
-                break
+                    filename = f"car_listings_{safe_name}.csv"
+                    filepath = os.path.join(data_dir, filename)
+                    write_rows_to_csv(rows_for_category, filepath=filepath)
+                    print(f"Saved {len(rows_for_category)} listings to {filepath}")
+                return driver
 
         except Exception as e:
             print(f"Skip page because of error: {e}")
-            break
+            return driver
 
 def navigate_page(driver, body_type, all_rows, category_rows):
     if not hasattr(navigate_page, "count"):
@@ -448,7 +509,8 @@ def write_category_csvs(category_rows, base_dir=".", prefix="car_listings"):
     fieldnames = ["year", "make", "model", "price", "mileage", "color", "url", "body_type"]
     for category, rows in category_rows.items():
         safe_name = category.lower().replace(" ", "_")
-        filepath = f"{base_dir}/{prefix}_{safe_name}.csv"
+        filename = f"{prefix}_{safe_name}.csv"
+        filepath = os.path.join(base_dir, filename)
         with open(filepath, "w", newline="", encoding="utf-8") as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()

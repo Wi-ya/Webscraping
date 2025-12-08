@@ -1,4 +1,5 @@
 year,make,model,price,mileage,color,url,body_type
+2012,BMW,1,"$9,999",145000,white,https://www.carpages.ca/used-cars/ontario/toronto/2012-bmw-1-series-13299521/,Coupe
 2022,Mercedes-Benz,GLE-Class,"$121,495",46174,black,https://www.carpages.ca/used-cars/ontario/ottawa/2022-mercedes-benz-gle-class-13298708/,Coupe
 2024,BMW,4,"$62,995",31711,gray,https://www.carpages.ca/used-cars/ontario/north-york/2024-bmw-4-series-13297808/,Coupe
 2012,Ford,Mustang,"$8,995",200250,black,https://www.carpages.ca/used-cars/ontario/komoka/2012-ford-mustang-13297055/,Coupe
@@ -722,7 +723,6 @@ year,make,model,price,mileage,color,url,body_type
 2025,Ford,Mustang,"$51,296",12,black,https://www.carpages.ca/new-cars/ontario/stratford/2025-ford-mustang-12780218/,Coupe
 2022,Chevrolet,Camaro,"$69,900",14709,black,https://www.carpages.ca/used-cars/ontario/vaughan/2022-chevrolet-camaro-12778898/,Coupe
 2021,Chevrolet,Corvette,"$90,988",6035,red,https://www.carpages.ca/used-cars/ontario/brantford/2021-chevrolet-corvette-12778604/,Coupe
-2013,MINI,Cooper,"$13,999",77809,black,https://www.carpages.ca/used-cars/ontario/stoney-creek/2013-mini-cooper-roadster-12777446/,Coupe
 2019,Porsche,911,"$318,888",11774,black,https://www.carpages.ca/used-cars/ontario/mississauga/2019-porsche-911-12775832/,Coupe
 2023,Audi,R8,"$237,995",26807,white,https://www.carpages.ca/used-cars/british-columbia/coquitlam/2023-audi-r8-12775580/,Coupe
 2024,Toyota,Corolla,"$30,950",33051,white,https://www.carpages.ca/used-cars/ontario/ottawa/2024-toyota-corolla-12775571/,Coupe

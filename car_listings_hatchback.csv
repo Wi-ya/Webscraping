@@ -1,4 +1,5 @@
 year,make,model,price,mileage,color,url,body_type
+2019,Mercedes-Benz,A250,"$22,980",50081,blue,https://www.carpages.ca/used-cars/ontario/north-york/2019-mercedes-benz-a250-13299542/,Hatchback
 2013,Toyota,Venza,"$18,499",59652,white,https://www.carpages.ca/used-cars/ontario/brampton/2013-toyota-venza-13299188/,Hatchback
 2016,Volkswagen,Golf,"$15,495",143125,carbon,https://www.carpages.ca/used-cars/ontario/kanata/2016-volkswagen-golf-13299086/,Hatchback
 2012,Kia,Soul,"$3,000",198500,moss,https://www.carpages.ca/used-cars/quebec/jonquiere/2012-kia-soul-13298399/,Hatchback
@@ -219,7 +220,7 @@ year,make,model,price,mileage,color,url,body_type
 2015,Hyundai,Accent,"$7,998",158883,gray,https://www.carpages.ca/used-cars/ontario/nepean/2015-hyundai-accent-13215764/,Hatchback
 2012,Nissan,Versa,"$2,200",115016,fresh,https://www.carpages.ca/used-cars/quebec/gatineau/2012-nissan-versa-13215545/,Hatchback
 2022,Subaru,Impreza,"$25,998",41500,black,https://www.carpages.ca/used-cars/ontario/guelph/2022-subaru-impreza-13215506/,Hatchback
-2015,Honda,Fit,"$1,849",370347,red,https://www.carpages.ca/used-cars/nova-scotia/halifax/2015-honda-fit-13215299/,Hatchback
+2015,Honda,Fit,"$1,590",370347,red,https://www.carpages.ca/used-cars/nova-scotia/halifax/2015-honda-fit-13215299/,Hatchback
 2025,Mazda,MAZDA3,"$31,195",0,gray,https://www.carpages.ca/new-cars/newfoundland-and-labrador/st-john-s/2025-mazda-mazda3-13215257/,Hatchback
 2025,Mazda,MAZDA3,"$37,295",0,gray,https://www.carpages.ca/new-cars/newfoundland-and-labrador/st-john-s/2025-mazda-mazda3-13215254/,Hatchback
 2025,Mazda,MAZDA3,"$30,445",1260,black,https://www.carpages.ca/new-cars/nova-scotia/dartmouth/2025-mazda-mazda3-13215239/,Hatchback
@@ -478,7 +479,7 @@ year,make,model,price,mileage,color,url,body_type
 2021,Kia,Rio,"$17,595",23377,blue,https://www.carpages.ca/used-cars/british-columbia/cranbrook/2021-kia-rio-13161826/,Hatchback
 2006,Toyota,Yaris,"$2,200",0,white,https://www.carpages.ca/used-cars/quebec/sherbrooke/2006-toyota-yaris-13161409/,Hatchback
 2010,Mazda,MAZDA6,"$2,100",226396,black,https://www.carpages.ca/used-cars/quebec/laval/2010-mazda-mazda6-13161349/,Hatchback
-2018,Chevrolet,Cruze,"$11,995",156317,red,https://www.carpages.ca/used-cars/nova-scotia/bridgewater/2018-chevrolet-cruze-13161289/,Hatchback
+2018,Chevrolet,Cruze,"$11,488",156317,red,https://www.carpages.ca/used-cars/nova-scotia/bridgewater/2018-chevrolet-cruze-13161289/,Hatchback
 2022,Kia,Soul,"$20,590",42512,orange,https://www.carpages.ca/used-cars/ontario/north-york/2022-kia-soul-13160779/,Hatchback
 2012,Nissan,Versa,"$8,940",91996,white,https://www.carpages.ca/used-cars/british-columbia/burnaby/2012-nissan-versa-13160770/,Hatchback
 2014,Hyundai,Elantra,"$4,920",222000,silver,https://www.carpages.ca/used-cars/ontario/mississauga/2014-hyundai-elantra-13160635/,Hatchback
@@ -501,6 +502,7 @@ year,make,model,price,mileage,color,url,body_type
 2019,Hyundai,Veloster,"$13,490",87513,gray,https://www.carpages.ca/used-cars/ontario/toronto/2019-hyundai-veloster-13151893/,Hatchback
 2019,BMW,X2,"$23,991",106000,black,https://www.carpages.ca/used-cars/ontario/london/2019-bmw-x2-13150489/,Hatchback
 2016,Nissan,Murano,"$11,888",178180,white,https://www.carpages.ca/used-cars/ontario/toronto/2016-nissan-murano-13149784/,Hatchback
+2005,Subaru,Forester,"$6,995",97184,silver,https://www.carpages.ca/used-cars/ontario/london/2005-subaru-forester-13149733/,Hatchback
 2018,Volkswagen,Beetle,"$24,988",55906,orange,https://www.carpages.ca/used-cars/ontario/guelph/2018-volkswagen-beetle-13148668/,Hatchback
 2024,Volkswagen,Golf,"$41,888",68000,blue,https://www.carpages.ca/used-cars/ontario/guelph/2024-volkswagen-golf-13148623/,Hatchback
 2022,Volvo,V60,"$41,988",79265,black,https://www.carpages.ca/used-cars/nova-scotia/halifax/2022-volvo-v60-13148524/,Hatchback
@@ -614,7 +616,6 @@ year,make,model,price,mileage,color,url,body_type
 2024,Audi,S5,"$63,488",15126,gray,https://www.carpages.ca/used-cars/ontario/whitby/2024-audi-s5-sportback-13118981/,Hatchback
 2026,Toyota,Prius,"$43,175",15,wind,https://www.carpages.ca/new-cars/british-columbia/surrey/2026-toyota-prius-13118783/,Hatchback
 2022,Kia,Forte5,"$20,995",59266,black,https://www.carpages.ca/used-cars/nova-scotia/sydney/2022-kia-forte5-13118621/,Hatchback
-2018,Mazda,MAZDA3,"$13,995",117045,gray,https://www.carpages.ca/used-cars/ontario/hamilton/2018-mazda-mazda3-13118300/,Hatchback
 2021,Nissan,Qashqai,"$28,988",45761,black,https://www.carpages.ca/used-cars/british-columbia/kelowna/2021-nissan-qashqai-13117973/,Hatchback
 2019,Hyundai,Elantra,"$12,888",152331,blue,https://www.carpages.ca/used-cars/ontario/etobicoke/2019-hyundai-elantra-gt-13117889/,Hatchback
 2007,Toyota,Yaris,"$6,888",250841,orange,https://www.carpages.ca/used-cars/ontario/etobicoke/2007-toyota-yaris-13117886/,Hatchback
@@ -670,7 +671,7 @@ year,make,model,price,mileage,color,url,body_type
 2025,Fiat,500,"$38,885",18,Other,https://www.carpages.ca/new-cars/british-columbia/surrey/2025-fiat-500-13105721/,Hatchback
 2025,Subaru,Impreza,"$29,995",10284,gray,https://www.carpages.ca/new-cars/prince-edward-island/charlottetown/2025-subaru-impreza-13105211/,Hatchback
 2025,Subaru,Impreza,"$31,995",11718,white,https://www.carpages.ca/new-cars/prince-edward-island/charlottetown/2025-subaru-impreza-13105208/,Hatchback
-2022,Honda,Civic,"$23,831",111795,black,https://www.carpages.ca/used-cars/nova-scotia/bridgewater/2022-honda-civic-13104866/,Hatchback
+2022,Honda,Civic,"$23,318",111795,black,https://www.carpages.ca/used-cars/nova-scotia/bridgewater/2022-honda-civic-13104866/,Hatchback
 2021,Chevrolet,Spark,"$18,595",118995,white,https://www.carpages.ca/used-cars/nova-scotia/dartmouth/2021-chevrolet-spark-13104836/,Hatchback
 2022,Chevrolet,Spark,"$20,095",91915,red,https://www.carpages.ca/used-cars/nova-scotia/dartmouth/2022-chevrolet-spark-13104833/,Hatchback
 2025,Mazda,CX-5,"$34,633",42581,red,https://www.carpages.ca/used-cars/manitoba/selkirk/2025-mazda-cx-5-13104539/,Hatchback
@@ -1325,7 +1326,7 @@ year,make,model,price,mileage,color,url,body_type
 2019,Porsche,Panamera,"$77,900",89166,silver,https://www.carpages.ca/used-cars/ontario/vaughan/2019-porsche-panamera-12586613/,Hatchback
 2014,Nissan,Juke,"$6,500",192900,black,https://www.carpages.ca/used-cars/prince-edward-island/summerside/2014-nissan-juke-12584114/,Hatchback
 2025,Toyota,Prius,"$43,940",5,wind,https://www.carpages.ca/new-cars/saskatchewan/prince-albert/2025-toyota-prius-12582446/,Hatchback
-2023,Nissan,Qashqai,"$27,275",42226,scarlet,https://www.carpages.ca/used-cars/ontario/tilbury/2023-nissan-qashqai-12578861/,Hatchback
+2023,Nissan,Qashqai,"$27,014",42226,scarlet,https://www.carpages.ca/used-cars/ontario/tilbury/2023-nissan-qashqai-12578861/,Hatchback
 2016,Nissan,Leaf,"$10,988",122861,Other,https://www.carpages.ca/used-cars/alberta/calgary/2016-nissan-leaf-12578318/,Hatchback
 2021,Honda,Civic,"$52,724",36700,polished,https://www.carpages.ca/used-cars/ontario/ottawa/2021-honda-civic-12576428/,Hatchback
 2025,Mazda,MAZDA3,"$39,812",10,pewter,https://www.carpages.ca/new-cars/ontario/cobourg/2025-mazda-mazda3-12571106/,Hatchback
@@ -1681,6 +1682,7 @@ year,make,model,price,mileage,color,url,body_type
 2008,Cadillac,SRX,$CALL,196130,red,https://www.carpages.ca/used-cars/ontario/scarborough/2008-cadillac-srx-7979855/,Hatchback
 2016,Tesla,Model,$CALL,37462,black,https://www.carpages.ca/used-cars/british-columbia/vancouver/2016-tesla-model-x-4977552/,Hatchback
 2013,Hyundai,Elantra,$CALL,56324,Other,https://www.carpages.ca/used-cars/ontario/collingwood/2013-hyundai-elantra-2396568/,Hatchback
+2020,Kia,NIRO,"$21,495",71455,white,https://www.carpages.ca/used-cars/british-columbia/new-westminster/2020-kia-niro-13299548/,Hatchback
 2012,Toyota,Prius,"$10,995",166112,white,https://www.carpages.ca/used-cars/british-columbia/richmond/2012-toyota-prius-13299275/,Hatchback
 2023,Tesla,Model,"$50,000",41000,black,https://www.carpages.ca/used-cars/british-columbia/vancouver/2023-tesla-model-y-13299083/,Hatchback
 2018,Subaru,Impreza,"$18,995",96250,white,https://www.carpages.ca/used-cars/british-columbia/north-vancouver/2018-subaru-impreza-13297817/,Hatchback

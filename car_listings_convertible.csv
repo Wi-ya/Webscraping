@@ -8,6 +8,7 @@ year,make,model,price,mileage,color,url,body_type
 2019,Volkswagen,Beetle,"$25,888",54354,black,https://www.carpages.ca/used-cars/ontario/kanata/2019-volkswagen-beetle-13295303/,Convertible
 2013,Mercedes-Benz,SLK,"$35,900",123524,white,https://www.carpages.ca/used-cars/ontario/vaughan/2013-mercedes-benz-slk-13294928/,Convertible
 2023,Chevrolet,Corvette,"$164,988",14098,orange,https://www.carpages.ca/used-cars/ontario/brantford/2023-chevrolet-corvette-13292954/,Convertible
+2021,BMW,Z4,"$64,990",11963,white,https://www.carpages.ca/used-cars/nova-scotia/halifax/2021-bmw-z4-13291364/,Convertible
 2021,Jeep,Wrangler,"$30,988",61268,gray,https://www.carpages.ca/used-cars/ontario/guelph/2021-jeep-wrangler-13288832/,Convertible
 2014,Volkswagen,Beetle,"$14,995",95000,white,https://www.carpages.ca/used-cars/ontario/kitchener/2014-volkswagen-beetle-13288490/,Convertible
 2013,Mercedes-Benz,SL-Class,"$41,995",71000,gray,https://www.carpages.ca/used-cars/ontario/kitchener/2013-mercedes-benz-sl-class-13288487/,Convertible
@@ -64,6 +65,7 @@ year,make,model,price,mileage,color,url,body_type
 2026,Jeep,Wrangler,"$86,300",10,41,https://www.carpages.ca/new-cars/saskatchewan/saskatoon/2026-jeep-wrangler-13190423/,Convertible
 2018,Volkswagen,Beetle,"$29,000",54000,red,https://www.carpages.ca/used-cars/british-columbia/vancouver/2018-volkswagen-beetle-13190216/,Convertible
 2011,BMW,3,"$29,999",73448,gray,https://www.carpages.ca/used-cars/ontario/paris/2011-bmw-3-series-13188905/,Convertible
+2007,Jaguar,XK,"$24,999",91559,red,https://www.carpages.ca/used-cars/ontario/paris/2007-jaguar-xk-13188500/,Convertible
 2026,Jeep,Wrangler,"$61,565",18,reign,https://www.carpages.ca/new-cars/nova-scotia/halifax/2026-jeep-wrangler-13187210/,Convertible
 2019,Aston,Martin,"$148,888",0,Other,https://www.carpages.ca/used-cars/ontario/mississauga/2019-aston-martin-db11-13183358/,Convertible
 1975,Buick,LeSabre,"$5,500",50000,white,https://www.carpages.ca/used-cars/ontario/st-catharines/1975-buick-lesabre-13182287/,Convertible
@@ -325,7 +327,7 @@ year,make,model,price,mileage,color,url,body_type
 2020,Ford,Mustang,"$30,988",35000,white,https://www.carpages.ca/used-cars/ontario/guelph/2020-ford-mustang-12747621/,Convertible
 2025,Jeep,Wrangler,"$70,470",10,joose,https://www.carpages.ca/new-cars/saskatchewan/saskatoon/2025-jeep-wrangler-12742233/,Convertible
 1995,Pontiac,Trans,"$3,500",255628,green,https://www.carpages.ca/used-cars/ontario/oakville/1995-pontiac-trans-am-12739437/,Convertible
-2019,Jeep,Wrangler,"$29,588",119843,punk,https://www.carpages.ca/used-cars/ontario/barrie/2019-jeep-wrangler-12729297/,Convertible
+2019,Jeep,Wrangler,"$28,996",119843,punk,https://www.carpages.ca/used-cars/ontario/barrie/2019-jeep-wrangler-12729297/,Convertible
 2018,Ford,Mustang,"$28,995",46939,black,https://www.carpages.ca/used-cars/ontario/bowmanville/2018-ford-mustang-12723243/,Convertible
 2006,Nissan,FAIRLADY,"$12,800",52748,black,https://www.carpages.ca/used-cars/british-columbia/burnaby/2006-nissan-fairlady-12721098/,Convertible
 2007,Chrysler,Crossfire,"$13,990",55774,silver,https://www.carpages.ca/used-cars/ontario/toronto/2007-chrysler-crossfire-12718854/,Convertible
@@ -359,7 +361,7 @@ year,make,model,price,mileage,color,url,body_type
 1992,Chevrolet,Corvette,"$23,820",62323,white,https://www.carpages.ca/used-cars/british-columbia/burnaby/1992-chevrolet-corvette-12643878/,Convertible
 2017,Mercedes-Benz,C-Class,"$38,898",43771,black,https://www.carpages.ca/used-cars/ontario/vaughan/2017-mercedes-benz-c-class-12643476/,Convertible
 2025,Porsche,Boxster,"$113,393.80",90,white,https://www.carpages.ca/new-cars/british-columbia/langley-city/2025-porsche-boxster-12640455/,Convertible
-2020,Mazda,Miata,"$28,988",26532,gray,https://www.carpages.ca/used-cars/nova-scotia/dartmouth/2020-mazda-miata-mx-5-12639339/,Convertible
+2020,Mazda,Miata,"$28,888",26532,gray,https://www.carpages.ca/used-cars/nova-scotia/dartmouth/2020-mazda-miata-mx-5-12639339/,Convertible
 2011,BMW,3,"$28,800",93000,black,https://www.carpages.ca/used-cars/manitoba/headingley/2011-bmw-3-series-12637461/,Convertible
 2001,Ferrari,360,"$123,900",32500,grigio,https://www.carpages.ca/used-cars/ontario/markham/2001-ferrari-360-spider-12635025/,Convertible
 2003,Mazda,Miata,"$13,988",50774,red,https://www.carpages.ca/used-cars/ontario/ottawa/2003-mazda-miata-mx-5-12626892/,Convertible
@@ -370,7 +372,7 @@ year,make,model,price,mileage,color,url,body_type
 2025,Porsche,Boxster,"$115,121.80",90,blue,https://www.carpages.ca/new-cars/british-columbia/langley-city/2025-porsche-boxster-12602833/,Convertible
 2025,Porsche,Boxster,"$125,933.80",90,black,https://www.carpages.ca/new-cars/british-columbia/langley-city/2025-porsche-boxster-12597853/,Convertible
 2025,Ford,Mustang,"$75,521",4981,black,https://www.carpages.ca/new-cars/ontario/peterborough/2025-ford-mustang-12596449/,Convertible
-1966,Ford,Galaxie,"$39,995",80502,red,https://www.carpages.ca/used-cars/ontario/perth/1966-ford-galaxie-12594643/,Convertible
+1966,Ford,Galaxie,"$39,995",80502,red,https://www.carpages.ca/used-cars/ontario/perth/1966-ford-galaxie-500-12594643/,Convertible
 2005,Toyota,Solara,"$9,995",177000,white,https://www.carpages.ca/used-cars/british-columbia/surrey/2005-toyota-solara-12589009/,Convertible
 2025,Jeep,Wrangler,"$72,910",4,mojito,https://www.carpages.ca/new-cars/nova-scotia/halifax/2025-jeep-wrangler-12582158/,Convertible
 2025,Jeep,Wrangler,"$73,610",4,41,https://www.carpages.ca/new-cars/nova-scotia/halifax/2025-jeep-wrangler-12582155/,Convertible
@@ -474,7 +476,7 @@ year,make,model,price,mileage,color,url,body_type
 2005,Ford,Thunderbird,"$24,995",49500,red,https://www.carpages.ca/used-cars/british-columbia/surrey/2005-ford-thunderbird-10429461/,Convertible
 2003,Mercedes-Benz,SL-Class,"$37,955",45015,blue,https://www.carpages.ca/used-cars/ontario/ottawa/2003-mercedes-benz-sl-class-10282656/,Convertible
 2018,Audi,A3,"$39,996",56403,black,https://www.carpages.ca/used-cars/ontario/orillia/2018-audi-a3-10270098/,Convertible
-2008,Volkswagen,Eos,"$10,888",141216,black,https://www.carpages.ca/used-cars/ontario/tilbury/2008-volkswagen-eos-10205073/,Convertible
+2008,Volkswagen,Eos,"$10,588",141216,black,https://www.carpages.ca/used-cars/ontario/tilbury/2008-volkswagen-eos-10205073/,Convertible
 2009,BMW,1,"$15,995",69830,black,https://www.carpages.ca/used-cars/ontario/north-york/2009-bmw-1-series-10202862/,Convertible
 2021,Mazda,Miata,"$32,996",33706,blue,https://www.carpages.ca/used-cars/ontario/orillia/2021-mazda-miata-mx-5-10128522/,Convertible
 2013,Mercedes-Benz,SL-Class,"$37,991",116000,black,https://www.carpages.ca/used-cars/ontario/london/2013-mercedes-benz-sl-class-10125444/,Convertible
@@ -521,7 +523,6 @@ year,make,model,price,mileage,color,url,body_type
 2022,Jeep,Wrangler,$CALL,23,black,https://www.carpages.ca/new-cars/british-columbia/nanaimo/2022-jeep-wrangler-8604080/,Convertible
 2026,Jeep,Wrangler,"$61,365",0,granite,https://www.carpages.ca/new-cars/nova-scotia/halifax/2026-jeep-wrangler-13296272/,Convertible
 2026,Jeep,Wrangler,"$57,115",10,mojito,https://www.carpages.ca/new-cars/newfoundland-and-labrador/corner-brook/2026-jeep-wrangler-13295505/,Convertible
-2021,BMW,Z4,"$64,990",11963,white,https://www.carpages.ca/used-cars/nova-scotia/halifax/2021-bmw-z4-13291364/,Convertible
 2025,Jeep,Wrangler,"$70,270",24,granite,https://www.carpages.ca/new-cars/newfoundland-and-labrador/corner-brook/2025-jeep-wrangler-13287314/,Convertible
 2026,Jeep,Wrangler,"$73,365",23,reign,https://www.carpages.ca/new-cars/newfoundland-and-labrador/corner-brook/2026-jeep-wrangler-13277240/,Convertible
 2026,Jeep,Wrangler,"$57,415",26,reign,https://www.carpages.ca/new-cars/newfoundland-and-labrador/corner-brook/2026-jeep-wrangler-13277237/,Convertible
