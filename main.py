@@ -322,6 +322,14 @@ def no_location_options():
     chrome_options.add_experimental_option("prefs", prefs)
     # Change so page does not wait for ads/pictures
     chrome_options.page_load_strategy = 'none'
+
+    # Set chrome to not slow down in the background
+    chrome_options.add_argument("--disable-background-timer-throttling")
+    chrome_options.add_argument("--disable-backgrounding-occluded-windows")
+    chrome_options.add_argument("--disable-renderer-backgrounding")
+    
+    # Trick window to think it's full size even if hidden, to keep browser running smoothly
+    chrome_options.add_argument("--window-size=1920,1080")
     # Return options
     return chrome_options
 

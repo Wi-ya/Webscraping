@@ -1,0 +1,14 @@
+# Security (API Keys)
+.env
+
+# Virtual Environment (Heavy folders)
+.venv/
+venv/
+env/
+
+# Python compiled files (Junk)
+__pycache__/
+*.pyc
+
+# Mac system junk
+.DS_Store
