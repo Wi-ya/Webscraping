@@ -1,5 +1,7 @@
+import csv
 import random
 import time
+from collections import defaultdict
 
 import setuptools
 from time import sleep
@@ -8,7 +10,6 @@ from selenium import webdriver
 from selenium.common import TimeoutException, NoSuchElementException
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.expected_conditions import none_of
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
@@ -16,6 +17,9 @@ from selenium.webdriver.chrome.options import Options
 import undetected_chromedriver as uc
 
 def main():
+    all_rows = []
+    category_rows = defaultdict(list)
+
     # Access Chrome webdriver with selected preferences to block requests
     driver = uc.Chrome(options=no_location_options(), version_main=142)
 
@@ -23,12 +27,18 @@ def main():
     driver.set_page_load_timeout(15)
     driver.implicitly_wait(5);
     try:
-        scrape_carpages_ca(driver)
-
+        scrape_carpages_ca(driver, all_rows, category_rows)
     finally:
         driver.quit()
 
-def scrape_carpages_ca(driver):
+    if all_rows:
+        write_rows_to_csv(all_rows, filepath="all_listings.csv")
+        write_category_csvs(category_rows)
+        print(f"Saved {len(all_rows)} listings to all_listings.csv and {len(category_rows)} category files.")
+    else:
+        print("No listings scraped; CSVs not written.")
+
+def scrape_carpages_ca(driver, all_rows, category_rows):
     # Open webpage and wait to load
     driver.get("https://www.carpages.ca")
     WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
@@ -44,56 +54,95 @@ def scrape_carpages_ca(driver):
     # Remove duplicates
     category_urls = list(dict.fromkeys(raw_urls))
 
+    visited_urls = set()
+
     # Access each category webpage
     for category_url in category_urls:
+        if category_url in visited_urls:
+            print(f"Skipping already visited category: {category_url}")
+            continue
         try:
             navigate_page.count = 0
             # Explicitly print before the blocking call
             print(" >> Requesting page...", end=" ", flush=True)
             driver.get(category_url)
-            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+            # Reduced timeout - body should load quickly
+            try:
+                WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+            except TimeoutException:
+                pass  # Continue anyway, page might still be loading
             print("Done.", flush=True)
 
             bypass_captcha(driver)
-            navigate_category(driver)
-            sleep(random.uniform(5,10))
+            navigate_category(driver, all_rows, category_rows)
+            sleep(random.uniform(2,4))  # Reduced sleep time between categories
+            visited_urls.add(category_url)
 
         except TimeoutException:
             # Keep browser open to keep looping
             print("Page load timed out! Forcing stop to continue scraping.")
             driver.execute_script("window.stop();")
             bypass_captcha(driver)
-            navigate_category(driver)  # Try to scrape whatever loaded
+            navigate_category(driver, all_rows, category_rows)  # Try to scrape whatever loaded
+            visited_urls.add(category_url)
 
         except Exception as e:
             print(f"Skip {category_url} because of error: {e}")
             continue  # Go to the next category
 
-def navigate_category(driver):
+def navigate_category(driver, all_rows, category_rows):
     print(f"Navigating in {driver.title}")
+    # Reset page counter for each new category
+    navigate_page.count = 0
+    
+    # Wait for page to be fully loaded after any redirects/captcha
+    bypass_captcha(driver)
+    
+    # Wait for the actual page content to be ready (shorter timeout, continue if fails)
+    try:
+        WebDriverWait(driver, 5).until(
+            EC.presence_of_element_located((By.TAG_NAME, "h1"))
+        )
+    except TimeoutException:
+        print(" >> Warning: Page header not found, trying to continue...")
+    
+    # Get body_type once at the start
+    try:
+        header_text = driver.find_element(By.TAG_NAME, "h1").text
+        if "New and Used" in header_text:
+            body_type = header_text.replace("New and Used ", "").replace(" for Sale", "")
+        else:
+            body_type = header_text
+        if body_type == "Cars":
+            body_type = "hybrid"
+        elif "Hatchbacks" in body_type:
+            body_type = "Hatchback"
+        elif "SUV" in body_type:
+            body_type = "SUV"
+        elif "Minivan" in body_type:
+            body_type = "Minivan"
+        else:
+            body_type = body_type[:-1]
+    except Exception as e:
+        print(f" >> Error extracting body_type: {e}")
+        return  # Can't proceed without body_type
+    
+    # Scrape the first page - wait for it to be ready
+    last_container = navigate_page(driver, body_type, all_rows, category_rows)
+    if last_container is None:
+        print(" >> Failed to load first page, skipping category.")
+        return
+    
+    last_url = driver.current_url
 
     while True:
         try:
-            header_text = driver.find_element(By.TAG_NAME, "h1").text
-            # Extract body_type which is the same for all cars in one category
-            if "New and Used" in header_text:
-                body_type = header_text.replace("New and Used ", "").replace(" for Sale", "")
-            else:
-                body_type = header_text
-            # Set body_type of all entries in one category to be the same
-            # Only changes when moving to new category
-            if body_type == "Cars":
-                body_type = "hybrid"
-            elif "Hatchbacks" in body_type:
-                body_type = "Hatchback"
-            elif "SUV" in body_type:
-                body_type = "SUV"
-            elif "Minivan" in body_type:
-                body_type = "Minivan"
-            else:
-                body_type = body_type[:-1]
-            navigate_page(driver,body_type)
-
+            # Quick captcha check (non-blocking if page is already loaded)
+            try:
+                bypass_captcha(driver)
+            except Exception:
+                pass  # Continue if captcha check fails
+            
             # After navigating page try to move to next page in the same category
             next_link = driver.find_elements(By.LINK_TEXT,"→")
             proceed_to_next = False
@@ -109,49 +158,139 @@ def navigate_category(driver):
                     proceed_to_next = True
 
             if proceed_to_next:
-                # Track current page count of cars (1-50 or 51-100)
-                curr_page_numbers = driver.find_element(By.CSS_SELECTOR,
-                                    "span[class*='tw:font-bold']").text
-
+                prev_url = driver.current_url
+                # Get current page indicator text if available (e.g., "1-50" or "51-100")
+                try:
+                    page_indicator = driver.find_element(By.CSS_SELECTOR, "span[class*='tw:font-bold']")
+                    prev_page_text = page_indicator.text
+                except Exception:
+                    prev_page_text = None
+                
+                try:
+                    old_container = driver.find_element(By.CSS_SELECTOR, "div[class*='tw:laptop:col-span-8']")
+                except Exception:
+                    old_container = None
+                
                 next_link[0].click()
 
-                # Wait for the loading to new page and for old page to go stale
+                # Wait for actual content change, not just URL (AJAX pagination may not change URL)
                 try:
-                    WebDriverWait(driver, 10).until(
-                        lambda d: d.find_element(By.CSS_SELECTOR, "span[class*='tw:font-bold']").text\
-                                  != curr_page_numbers
+                    # Check multiple indicators that page has changed
+                    def page_has_changed(driver):
+                        # Check 1: URL changed
+                        if driver.current_url != prev_url:
+                            return True
+                        # Check 2: Old container went stale (detached from DOM)
+                        if old_container:
+                            try:
+                                # Try to access a property - if stale, this will raise StaleElementReferenceException
+                                _ = old_container.tag_name
+                            except:
+                                return True  # Container is stale, page changed
+                        # Check 3: Page indicator text changed
+                        if prev_page_text:
+                            try:
+                                new_indicator = driver.find_element(By.CSS_SELECTOR, "span[class*='tw:font-bold']")
+                                if new_indicator.text != prev_page_text:
+                                    return True
+                            except:
+                                pass
+                        return False
+                    
+                    # Wait for page change (shorter timeout since pages load quickly)
+                    WebDriverWait(driver, 4).until(page_has_changed)
+                    
+                    # Now wait for new content to be ready (short wait)
+                    WebDriverWait(driver, 3).until(
+                        EC.presence_of_element_located((By.CSS_SELECTOR, "div[class*='tw:laptop:col-span-8']"))
                     )
+                    
                     print(" >> Page loaded successfully.")
-                except Exception as e:
-                    print(" >> Timed out waiting for new page to load.")
+                    
+                    # Scrape the new page
+                    current_url = driver.current_url
+                    if current_url != last_url or last_container is None:
+                        last_container = navigate_page(driver, body_type, all_rows, category_rows)
+                        if last_container:
+                            last_url = current_url
+                except TimeoutException:
+                    # Page might have loaded but our checks didn't catch it - try scraping anyway
+                    try:
+                        # Quick check if container exists and page indicator changed
+                        test_container = driver.find_element(By.CSS_SELECTOR, "div[class*='tw:laptop:col-span-8']")
+                        current_url = driver.current_url
+                        
+                        # Check if page indicator changed (even if URL didn't)
+                        page_changed = False
+                        if prev_page_text:
+                            try:
+                                new_indicator = driver.find_element(By.CSS_SELECTOR, "span[class*='tw:font-bold']")
+                                if new_indicator.text != prev_page_text:
+                                    page_changed = True
+                            except:
+                                pass
+                        
+                        # Scrape if URL changed OR page indicator changed
+                        if current_url != last_url or page_changed:
+                            print(" >> Timeout on wait but content available, scraping...")
+                            last_container = navigate_page(driver, body_type, all_rows, category_rows)
+                            if last_container:
+                                last_url = current_url
+                        else:
+                            print(" >> Page appears unchanged, continuing...")
+                    except Exception:
+                        print(" >> Page not ready yet, will retry...")
+                        sleep(0.5)  # Brief wait before retry
 
             else:
                 print("No link found. Must be last page of category.")
+                # Category finished; write its CSV now.
+                rows_for_category = category_rows.get(body_type, [])
+                if rows_for_category:
+                    safe_name = body_type.lower().replace(" ", "_")
+                    write_rows_to_csv(rows_for_category, filepath=f"car_listings_{safe_name}.csv")
+                    print(f"Saved {len(rows_for_category)} listings to car_listings_{safe_name}.csv")
                 break
 
         except Exception as e:
             print(f"Skip page because of error: {e}")
             break
 
-def navigate_page(driver, body_type):
+def navigate_page(driver, body_type, all_rows, category_rows):
     if not hasattr(navigate_page, "count"):
         navigate_page.count = 0
-    navigate_page.count += 1
-    print(f"Navigating page {navigate_page.count} in {driver.title}")
+    
+    # Quick captcha check (non-blocking if already past)
     try:
-        # Wait for container to appear to access
-        page_car_listing_container = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, "div[class*='tw:laptop:col-span-8']")))
+        bypass_captcha(driver)
+    except Exception:
+        pass  # Continue even if captcha check has issues
+    
+    try:
+        # Reduced timeout - page should load faster after URL change
+        page_car_listing_container = WebDriverWait(driver, 8).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "div[class*='tw:laptop:col-span-8']"))
+        )
+        # Only increment page count once a real listing container is present.
+        navigate_page.count += 1
+        print(f"Navigating page {navigate_page.count} in {driver.title}")
         # Get list of all car_listings to scrape data
         car_listings = page_car_listing_container.find_elements(By.CSS_SELECTOR,
                 "div[class*='tw:flex'][class*='tw:p-6']")
         if not car_listings:
             print("No car listing found.")
         else:
+            print(f"Found {len(car_listings)} car listings on this page.")
             for car_listing in car_listings:
-                extract_data_from_listing(car_listing, body_type)
+                extract_data_from_listing(car_listing, body_type, all_rows, category_rows)
+        return page_car_listing_container
     except (NoSuchElementException, TimeoutException):
-        print("(Page content timed out or empty)")
+        # Don't print error - page might still be loading, will retry
+        return None
+    except Exception as e:
+        # Only print actual errors, not timeouts
+        print(f"(Error navigating page: {e})")
+        return None
 
 def cookie_handler(driver):
     try:
@@ -166,7 +305,7 @@ def cookie_handler(driver):
 
         cookie_btn.click()
         print("Cookie banner dismissed.")
-        sleep(2)  # Time for popup to disappear
+        sleep(1)  # Reduced wait time for popup to disappear
 
     except Exception as e:
         print(f"Cookie banner skipped or not found. Details: {e}")
@@ -193,7 +332,7 @@ def bypass_captcha(driver):
                          "Checking your browser", "reCAPTCHA", "Cloudflare"]
     accurate_titles = ["New and Used", "Carpages.ca"]
 
-    max_wait = 20  # Wait time to ensure that manual captcha entry is required
+    max_wait = 10  # Reduced wait time - most redirects happen quickly
     start_time = time.time()
 
     while True:
@@ -220,11 +359,12 @@ def bypass_captcha(driver):
             input("Press Enter to resume script...")
             return
 
-        # Wait and check again
-        print(f" >> Time waiting: ({int(elapsed)}s)")
-        time.sleep(2)
+        # Wait and check again (shorter sleep for faster checks)
+        if elapsed > 3:  # Only print after 3 seconds
+            print(f" >> Waiting for page redirect: ({int(elapsed)}s)")
+        time.sleep(1)  # Reduced from 2 to 1 second
 
-def extract_data_from_listing(car_listing, body_type):
+def extract_data_from_listing(car_listing, body_type, all_rows, category_rows):
     # Extract year, make, model, link and price
     listing_header = car_listing.find_element(By.TAG_NAME, "h4").text
     year = listing_header.split(" ")[0]
@@ -253,9 +393,58 @@ def extract_data_from_listing(car_listing, body_type):
         if clean_mileage.isdigit():
             car_mileage = int(clean_mileage)
 
-    color = car_listing.find_element(By.CSS_SELECTOR,
+    color_raw = car_listing.find_element(By.CSS_SELECTOR,
                                      "span[class*='tw:text-sm tw:font-bold']").text
-    print(year, make, model, price, car_mileage, color, href_link, body_type)
+    color = normalize_color(color_raw)
+
+    row = {
+        "year": year,
+        "make": make,
+        "model": model,
+        "price": price,
+        "mileage": car_mileage,
+        "color": color,
+        "url": href_link,
+        "body_type": body_type
+    }
+    all_rows.append(row)
+    category_rows[body_type].append(row)
+
+def normalize_color(raw_color):
+    """Pick the basic color term already present in the descriptive color text."""
+    color_str = (raw_color or "").lower()
+    basic_colors = [
+        "black", "white", "red", "blue", "green", "yellow",
+        "orange", "purple", "pink", "brown", "beige", "gray",
+        "grey", "silver", "gold"
+    ]
+
+    for base in basic_colors:
+        if base in color_str:
+            # Normalize grey/gray to Gray
+            if base in ("gray", "grey"):
+                return "gray"
+            return base
+
+    return raw_color.split()[0].lower() if raw_color else "Other"
+
+def write_rows_to_csv(rows, filepath="car_listings.csv"):
+    fieldnames = ["year", "make", "model", "price", "mileage", "color", "url", "body_type"]
+    with open(filepath, "w", newline="", encoding="utf-8") as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+
+def write_category_csvs(category_rows, base_dir=".", prefix="car_listings"):
+    """Write one CSV per category plus keep the already-written aggregate file."""
+    fieldnames = ["year", "make", "model", "price", "mileage", "color", "url", "body_type"]
+    for category, rows in category_rows.items():
+        safe_name = category.lower().replace(" ", "_")
+        filepath = f"{base_dir}/{prefix}_{safe_name}.csv"
+        with open(filepath, "w", newline="", encoding="utf-8") as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(rows)
 
 if __name__ == "__main__":
     main()
